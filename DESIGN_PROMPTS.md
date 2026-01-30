@@ -83,3 +83,32 @@ Models/guardrails previously tested by the team:
 - Added AGENTS.md, CLAUDE.md, DESIGN_PROMPTS.md
 - Created data structures for models and guardrails
 - Deployed to Vercel with custom domain
+
+### 2026-01-30: Deep-Dive Research Phase
+
+**User Request**: Create subagent prompts for deep-dive research on each candidate model/guardrail. Need to:
+1. Verify models are CURRENT (Jan 2026), not obsolete
+2. Store richer data per model for drill-down on the site
+3. Have subagents search online (training data outdated)
+
+**Relevance Criteria**:
+- Must have high agentic/tool-calling capability (our P0 requirement)
+- Slightly older Pro variants OK if still performant + less resilient
+- Flash/Mini variants generally NOT suitable (lower agentic capability)
+- GPT-4.x, o1, Claude 3.x, Llama 3.x, Qwen 2.x are TOO OLD
+
+**Current Model Families (Jan 2026)**:
+| Family | Current | Potentially Relevant Older | Too Old |
+|--------|---------|---------------------------|---------|
+| OpenAI | GPT-5.x, o3, o4 | - | GPT-4.x, o1, o2 |
+| Anthropic | Claude/Opus/Sonnet 4.5 | - | Claude 3.x |
+| Google | Gemini 3.x | Gemini 2.5 Pro | Gemini 2.5 Flash, 2.0 |
+| DeepSeek | V3.x, R1 | - | V2 |
+| Alibaba | Qwen 3.x | - | Qwen 2.x |
+| Moonshot | Kimi K2.x | - | K1 |
+| Zhipu | GLM-4.6+, 4.7 | - | GLM-4.0-4.5 |
+| MiniMax | M2.x | - | M1 |
+| Meta | Llama 4.x | - | Llama 3.x |
+| Mistral | Large 3.x | Large 2 (limited) | Earlier |
+
+**Subagent Prompt Template**: See `prompts/model-deep-dive.md`
