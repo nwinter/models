@@ -325,6 +325,7 @@ export const models: Model[] = [
       agentic: 8,
       overall: 83,
     },
+    pricing: {},
     robustness: {
       score: 6,
       injectionResistance: 'medium',

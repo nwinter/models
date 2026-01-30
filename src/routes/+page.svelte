@@ -192,7 +192,7 @@
                     {/if}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm">
-                    {#if model.pricing.inputPerMillion !== undefined}
+                    {#if model.pricing?.inputPerMillion !== undefined}
                       <div>${model.pricing.inputPerMillion} in</div>
                       <div class="text-xs text-gray-500">${model.pricing.outputPerMillion} out</div>
                     {:else}
@@ -316,14 +316,14 @@
                     {guardrail.modelSize ?? '-'}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm">
-                    {#if guardrail.benchmarks.accuracy}
+                    {#if guardrail.benchmarks?.accuracy}
                       {guardrail.benchmarks.accuracy}%
                     {:else}
                       -
                     {/if}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm">
-                    {#if guardrail.benchmarks.generalizationGap !== undefined}
+                    {#if guardrail.benchmarks?.generalizationGap !== undefined}
                       <span class={guardrail.benchmarks.generalizationGap > 20 ? 'text-red-600' : 'text-green-600'}>
                         {guardrail.benchmarks.generalizationGap}%
                       </span>
