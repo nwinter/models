@@ -37,20 +37,24 @@ export const guardrails: Guardrail[] = [
     providerUrl: 'https://ai.meta.com',
     type: 'prompt-injection',
     openSource: true,
-    modelSize: '86M',
+    modelSize: '86M (also 22M variant)',
     benchmarks: {
-      accuracy: 78,
+      accuracy: 82,
     },
     features: [
-      'Dedicated prompt injection detector',
-      'Fast inference (tiny model)',
-      'Production-ready',
+      'Dedicated prompt injection + jailbreak detector',
+      'Lightweight BERT-style (mDeBERTa-base)',
+      'Real-time, low latency',
+      'Multilingual: English, French, German, Hindi, Italian, Portuguese, Spanish, Thai',
     ],
     limitations: [
       'Only detects prompt injection, not content safety',
+      '512-token context limit',
+      'Bypassed by spacing attacks (add spaces between letters)',
+      'Weak on multilingual obfuscation',
     ],
-    notes: '★ RECOMMENDED: True PI detector, not just content safety',
-    sources: ['claude.ai synthesis'],
+    notes: '★ RECOMMENDED: True PI detector, not just content safety. Has known bypasses to test against.',
+    sources: ['Meta Purple Llama', 'Security research'],
   },
   {
     id: 'qwen3guard-8b',
@@ -108,21 +112,23 @@ export const guardrails: Guardrail[] = [
     providerUrl: 'https://allenai.org',
     type: 'both',
     openSource: true,
-    modelSize: '7B',
+    modelSize: '7B (Mistral-7B-v0.3 base)',
     benchmarks: {
+      accuracy: 82.8,
       jailbreakReduction: 97.6,  // Reduces success to 2.4%
       falsePositiveRate: 5.2,
     },
     features: [
-      'Balanced safety/usability',
-      'Measures over-refusal (important!)',
-      'Research-focused',
+      'Three-task model: prompt harmfulness, response harmfulness, refusal detection',
+      'Best open-source for balanced safety/usability',
+      '+4.8% better than GPT-4 on adversarial prompts',
+      '+21.2% F1 over baselines for refusal detection',
     ],
     limitations: [
-      'Research model, may need adaptation for production',
+      'Slightly behind Qwen3Guard on overall benchmarks',
     ],
-    notes: '★ RECOMMENDED: Calibration baseline for usability tradeoffs',
-    sources: ['claude.ai synthesis'],
+    notes: '★ RECOMMENDED: Best balanced safety/usability tradeoff',
+    sources: ['WildGuard paper', 'GuardBench'],
   },
   {
     id: 'gpt-oss-safeguard-20b',
@@ -154,12 +160,24 @@ export const guardrails: Guardrail[] = [
     providerUrl: 'https://ai.meta.com',
     type: 'both',
     openSource: true,
+    benchmarks: {
+      accuracy: 50, // ~50% of PI payloads blocked in testing
+    },
     features: [
-      'Multi-layer defense system',
-      'Prompt injection detection',
-      'Output safety filtering',
+      'Multi-scanner framework combining multiple defenses',
+      'PromptGuardScanner (PI/Jailbreak)',
+      'AlignmentCheckScanner (Goal hijacking)',
+      'CodeShieldScanner (Code vulnerabilities)',
+      'Regex filters',
     ],
-    notes: 'Meta\'s comprehensive firewall solution',
+    limitations: [
+      'Only ~50% bypass rate in testing',
+      'Multilingual obfuscation bypass (Turkish, etc.)',
+      'Unicode invisible character bypass',
+      'Leetspeak bypass',
+    ],
+    notes: 'Meta\'s comprehensive firewall - has documented bypasses',
+    sources: ['Security research', 'Meta Purple Llama'],
     previouslyTested: true,
   },
   {
@@ -194,17 +212,23 @@ export const guardrails: Guardrail[] = [
     modelSize: '12B',
     benchmarks: {
       accuracy: 85,
+      generalizationGap: 40, // ~40% miss rate on PI
     },
     features: [
-      'Content safety classification',
-      'Multimodal support',
-      'Standard safety taxonomy',
+      'Multimodal (text + images)',
+      '13 harm categories',
+      '12 languages supported',
+      'MLCommons hazard taxonomy alignment',
     ],
     limitations: [
       '⚠️ Does NOT detect prompt injection!',
-      'Only content safety (hate, violence, explicit)',
+      '36.56% block rate on system prompt leak attacks',
+      '~40% miss rate on prompt injection',
+      '97-99% benign accuracy but "catastrophically low" harmful detection',
+      'Inverse scaling: LlamaGuard-3-1B (59.9%) outperforms LlamaGuard-3-8B (48.4%)',
     ],
-    notes: 'Content safety only - include only if multimodal track needed',
+    notes: 'Content safety only - too permissive for adversarial testing. Pair with Prompt Guard 2 for PI.',
+    sources: ['Robustness study', 'Meta docs'],
     previouslyTested: true,
   },
   {
@@ -214,19 +238,23 @@ export const guardrails: Guardrail[] = [
     providerUrl: 'https://ai.google.dev',
     type: 'content-safety',
     openSource: true,
-    modelSize: '9B',
+    modelSize: '2B/4B/9B/27B variants',
     benchmarks: {
-      accuracy: 83,
+      accuracy: 54.7, // 9B version on adversarial
     },
     features: [
-      'Content safety classification',
-      'Based on Gemma architecture',
+      'Content safety (sexually explicit, dangerous, hate, harassment)',
+      'ShieldGemma 2 supports image safety',
+      '9B: +10.8% AU-PRC vs LlamaGuard1, +6.4% F1 vs GPT-4',
     ],
     limitations: [
       '⚠️ Does NOT detect prompt injection!',
       'Google\'s PI detection is in Model Armor, not ShieldGemma',
+      '20.7-point performance range across prompt styles',
+      'Inverse scaling: 2B (62.4%) outperforms 9B (54.7%) on adversarial',
     ],
-    notes: 'Content safety only - not for PI testing',
+    notes: 'Content safety only - not for PI testing. Smaller models may be better.',
+    sources: ['Robustness study', 'Google docs'],
     previouslyTested: true,
   },
 
@@ -242,18 +270,25 @@ export const guardrails: Guardrail[] = [
     type: 'prompt-injection',
     openSource: false,
     benchmarks: {
-      accuracy: 85,
+      accuracy: 88,
     },
     pricing: {
-      notes: 'Part of Azure AI Services',
+      perMillionTokens: 0.75, // Per 1K text records (1K chars each)
+      notes: '$0.75/1K text records, $1.50/1K images. Free tier: 5K/month.',
     },
     features: [
-      'Most comprehensive PI solution',
-      'Handles direct AND indirect (RAG document) attacks',
-      'Enterprise integration',
+      'Direct AND indirect (IPI) prompt injection detection',
+      'Spotlighting (Build 2025) distinguishes trusted vs untrusted inputs',
+      'Protected Material Detection',
+      'Groundedness Detection',
+      '13 harm categories',
     ],
-    notes: '★ RECOMMENDED: The specialist for prompt injection',
-    sources: ['claude.ai synthesis'],
+    limitations: [
+      'Requires Azure subscription',
+      'Spotlighting adds tokens (cost increase)',
+    ],
+    notes: '★ RECOMMENDED: The specialist for prompt injection, incl. indirect attacks',
+    sources: ['Azure docs', 'Microsoft Build 2025'],
     previouslyTested: true,  // Tested as "azure guard"
   },
   {
@@ -362,6 +397,30 @@ export const guardrails: Guardrail[] = [
     ],
     notes: 'Enterprise ML security platform',
     previouslyTested: true,
+  },
+  {
+    id: 'nemo-guardrails',
+    name: 'NeMo Guardrails',
+    provider: 'NVIDIA',
+    providerUrl: 'https://developer.nvidia.com/nemo-guardrails',
+    type: 'both',
+    openSource: true,
+    benchmarks: {
+      accuracy: 72.54, // ASR on jailbreaks
+    },
+    features: [
+      'Programmable guardrails framework',
+      'YARA-based injection detection',
+      'Customizable rules',
+      'Apache 2.0 license',
+    ],
+    limitations: [
+      '72.54% ASR on jailbreaks (attackers succeed often)',
+      'Emoji Smuggling: 100% bypass rate',
+      'Unicode injection vulnerabilities',
+    ],
+    notes: 'Has documented bypasses (emoji, unicode). Good for testing attack resistance.',
+    sources: ['NVIDIA docs', 'Security research'],
   },
   {
     id: 'nova-micro-classifier',

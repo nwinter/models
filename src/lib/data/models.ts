@@ -193,24 +193,25 @@ export const models: Model[] = [
     contextLength: 1000000,
     benchmarks: {
       mmlu: 90.0,
+      humanEval: 63.8, // SWE-bench
       agentic: 9,
       overall: 88,
     },
     pricing: {
       inputPerMillion: 1.25,
-      outputPerMillion: 5.00,
+      outputPerMillion: 10.00,
     },
     speed: {
-      tokensPerSecond: 194,
+      tokensPerSecond: 148.8,
     },
     robustness: {
-      score: 5,
-      injectionResistance: 'medium',
-      notes: 'RECOMMENDED: Capable but not super secure against injections. Previous indirect runs showed vulnerability.',
+      score: 3,
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: 65.8% security pass rate, 99% CoT hijacking vulnerability. Excellent for measuring uplift.',
     },
     availability: 'api',
-    notes: '★ CANDIDATE: High capability, lower robustness, good speed/cost',
-    sources: ['Team testing', 'xiaohan feedback'],
+    notes: '★ TOP CANDIDATE: High capability, LOW robustness (99% CoT hijack), good speed/cost',
+    sources: ['Promptfoo security report', 'Team testing'],
   },
   {
     id: 'gemini-3-pro',
@@ -389,10 +390,10 @@ export const models: Model[] = [
     providerUrl: 'https://deepseek.com',
     releaseDate: '2024-12',
     contextLength: 128000,
-    parameterCount: '671B (MoE)',
+    parameterCount: '671B (37B active)',
     benchmarks: {
-      mmlu: 87.1,
-      humanEval: 89.0,
+      mmlu: 88.5,
+      humanEval: 90.2, // MATH-500
       agentic: 8,
       overall: 84,
     },
@@ -401,14 +402,16 @@ export const models: Model[] = [
       outputPerMillion: 1.10,
     },
     speed: {
-      tokensPerSecond: 60,
+      tokensPerSecond: 33, // 8xH100
     },
     robustness: {
-      score: 5,
+      score: 4,
       injectionResistance: 'medium',
+      notes: '87% jailbreak resistance per Holistic AI, but vulnerable to multi-turn attacks',
     },
     availability: 'both',
     notes: 'Very cost-effective, open weights MoE architecture',
+    sources: ['Holistic AI testing'],
   },
   {
     id: 'deepseek-r1',
@@ -416,21 +419,51 @@ export const models: Model[] = [
     provider: 'DeepSeek',
     providerUrl: 'https://deepseek.com',
     releaseDate: '2025-01',
-    contextLength: 128000,
+    contextLength: 163000,
+    parameterCount: '671B (37B active)',
     benchmarks: {
-      agentic: 9,
+      mmlu: 84.9,
+      humanEval: 97.4, // MATH-500
+      agentic: 7, // Limited tool-calling support
       overall: 88,
     },
     pricing: {
-      inputPerMillion: 0.55,
-      outputPerMillion: 2.19,
+      inputPerMillion: 0.30,
+      outputPerMillion: 1.20,
     },
     robustness: {
-      score: 6,
-      injectionResistance: 'medium',
+      score: 2,
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: 94-100% jailbreak success rate per NIST. "Very Low Security Tier" per Adversa AI.',
     },
     availability: 'both',
-    notes: 'Reasoning model, competitive with o1',
+    notes: '★ TOP CANDIDATE: High capability, extremely low robustness. Best for measuring guardrail uplift.',
+    sources: ['NIST evaluation', 'Adversa AI red team'],
+  },
+  {
+    id: 'deepseek-v3.1',
+    name: 'DeepSeek-V3.1',
+    provider: 'DeepSeek',
+    providerUrl: 'https://deepseek.com',
+    releaseDate: '2025-08',
+    contextLength: 128000,
+    parameterCount: '671B (37B active)',
+    benchmarks: {
+      agentic: 9, // Improved tool-calling
+      overall: 86,
+    },
+    pricing: {
+      inputPerMillion: 0.35,
+      outputPerMillion: 1.40,
+    },
+    robustness: {
+      score: 3,
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: Hybrid V3+R1, switchable thinking modes. Lower robustness than pure V3.',
+    },
+    availability: 'both',
+    notes: '★ CANDIDATE: Strong tool-calling, low robustness',
+    sources: ['Research'],
   },
 
   // === Kimi (Moonshot AI) ===
@@ -440,19 +473,51 @@ export const models: Model[] = [
     provider: 'Moonshot AI',
     providerUrl: 'https://moonshot.ai',
     releaseDate: '2025-07',
-    contextLength: 1000000,
+    contextLength: 256000,
+    parameterCount: '1T (32B active)',
     benchmarks: {
-      agentic: 8,
-      overall: 82,
+      humanEval: 65.8, // SWE-bench
+      agentic: 10, // Excellent tool-calling, 200-300 tool orchestration
+      overall: 85,
+    },
+    pricing: {
+      inputPerMillion: 0.60,
+      outputPerMillion: 2.50,
     },
     robustness: {
-      score: 7,
-      injectionResistance: 'high',
-      notes: 'Kimi models are typically MORE robust - less suitable',
+      score: 3,
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: Only 42% jailbreak resistance per Holistic AI. Excellent tool-calling makes it ideal for agentic testing.',
     },
-    availability: 'api',
-    notes: 'Long context specialist, but higher robustness',
-    sources: ['xiaohan feedback'],
+    availability: 'both',
+    notes: '★ CANDIDATE: High capability + low robustness. MIT license.',
+    sources: ['Holistic AI testing', 'SplxAI red team'],
+  },
+  {
+    id: 'kimi-k2-thinking',
+    name: 'Kimi K2 Thinking',
+    provider: 'Moonshot AI',
+    providerUrl: 'https://moonshot.ai',
+    releaseDate: '2025-11',
+    contextLength: 256000,
+    parameterCount: '1T (32B active)',
+    benchmarks: {
+      humanEval: 71.3, // SWE-bench
+      agentic: 10,
+      overall: 90,
+    },
+    pricing: {
+      inputPerMillion: 0.75,
+      outputPerMillion: 3.00,
+    },
+    robustness: {
+      score: 6,
+      injectionResistance: 'medium',
+      notes: 'Improved robustness over base K2, but still testable',
+    },
+    availability: 'both',
+    notes: 'Reasoning variant with better safety alignment',
+    sources: ['Holistic AI testing'],
   },
 
   // === xAI ===
@@ -617,6 +682,147 @@ export const models: Model[] = [
     },
     availability: 'both',
     notes: 'Enterprise-focused, Apache 2.0 license',
+  },
+
+  // === MiniMax ===
+  {
+    id: 'minimax-m2',
+    name: 'MiniMax M2',
+    provider: 'MiniMax',
+    providerUrl: 'https://www.minimax.io',
+    releaseDate: '2025-10',
+    contextLength: 196600,
+    parameterCount: '230B (10B active)',
+    benchmarks: {
+      humanEval: 69.4, // SWE-bench Verified
+      agentic: 9, // Strong tool use per Tau2
+      overall: 87,
+    },
+    pricing: {
+      inputPerMillion: 0.30,
+      outputPerMillion: 1.20,
+    },
+    speed: {
+      tokensPerSecond: 100,
+    },
+    robustness: {
+      score: 5,
+      injectionResistance: 'medium',
+      notes: 'Base M2 has moderate robustness. Thinking variant is very robust.',
+    },
+    availability: 'both',
+    notes: 'MIT license, 92% cheaper than Claude. Strong coding/agentic.',
+    sources: ['Artificial Analysis', 'Holistic AI testing'],
+  },
+  {
+    id: 'minimax-m2-thinking',
+    name: 'MiniMax M2 (Thinking)',
+    provider: 'MiniMax',
+    providerUrl: 'https://www.minimax.io',
+    releaseDate: '2025-10',
+    contextLength: 196600,
+    parameterCount: '230B (10B active)',
+    benchmarks: {
+      agentic: 9,
+      overall: 89,
+    },
+    robustness: {
+      score: 10,
+      injectionResistance: 'high',
+      notes: '100% jailbreak resistance - matches Claude. NOT suitable for robustness testing.',
+    },
+    availability: 'both',
+    notes: 'CONTROL GROUP: Use for high-robustness baseline comparison',
+    sources: ['Holistic AI testing'],
+  },
+
+  // === GLM (Zhipu AI / Z.ai) ===
+  {
+    id: 'glm-4.7',
+    name: 'GLM-4.7',
+    provider: 'Z.ai (Zhipu AI)',
+    providerUrl: 'https://z.ai',
+    releaseDate: '2025-12',
+    contextLength: 200000,
+    parameterCount: '~400B (32B active)',
+    benchmarks: {
+      humanEval: 73.8, // SWE-bench Verified
+      mmlu: 95.7, // AIME 2025
+      agentic: 9, // 87.4% tau-bench
+      overall: 88,
+    },
+    pricing: {
+      inputPerMillion: 0.60,
+      outputPerMillion: 2.20,
+    },
+    speed: {
+      tokensPerSecond: 55,
+    },
+    robustness: {
+      score: 4,
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: "Room for improvement" per Zhipu. Strong tool-calling (87.4% tau-bench).',
+    },
+    availability: 'both',
+    notes: '★ CANDIDATE: High capability, acknowledged safety gaps',
+    sources: ['Cisco security assessment', 'Z.ai blog'],
+  },
+
+  // === Llama 4 ===
+  {
+    id: 'llama-4-maverick',
+    name: 'Llama 4 Maverick',
+    provider: 'Meta',
+    providerUrl: 'https://ai.meta.com',
+    releaseDate: '2025-04',
+    contextLength: 1000000,
+    parameterCount: '400B (17B active)',
+    benchmarks: {
+      mmlu: 73.4, // MMMU
+      agentic: 8,
+      overall: 85,
+    },
+    pricing: {
+      inputPerMillion: 0.31,
+      outputPerMillion: 0.85,
+    },
+    speed: {
+      tokensPerSecond: 122.9,
+    },
+    robustness: {
+      score: 6,
+      injectionResistance: 'medium',
+    },
+    availability: 'both',
+    notes: '1400+ LMArena Elo, very fast inference',
+    sources: ['Artificial Analysis', 'NVIDIA benchmarks'],
+  },
+
+  // === Qwen qwq (low robustness variant) ===
+  {
+    id: 'qwen-qwq-32b',
+    name: 'Qwen-qwq-32b',
+    provider: 'Alibaba',
+    providerUrl: 'https://qwenlm.github.io',
+    releaseDate: '2025-03',
+    contextLength: 131072,
+    parameterCount: '32B',
+    benchmarks: {
+      agentic: 8,
+      overall: 80,
+    },
+    pricing: {
+      inputPerMillion: 0.35,
+      outputPerMillion: 1.55,
+    },
+    robustness: {
+      score: 2,
+      injectionResistance: 'low',
+      notes: '★ TOP CANDIDATE: Only 32% jailbreak resistance per Holistic AI. Lowest tested.',
+    },
+    availability: 'both',
+    notes: '★ TOP CANDIDATE: Very low robustness, good capability',
+    sources: ['Holistic AI testing'],
   },
 ];
 
