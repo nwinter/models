@@ -39,22 +39,27 @@ export const guardrails: Guardrail[] = [
     openSource: true,
     modelSize: '86M (also 22M variant)',
     benchmarks: {
-      accuracy: 82,
+      accuracy: 82, // Private benchmark
     },
     features: [
       'Dedicated prompt injection + jailbreak detector',
       'Lightweight BERT-style (mDeBERTa-base)',
       'Real-time, low latency',
-      'Multilingual: English, French, German, Hindi, Italian, Portuguese, Spanish, Thai',
+      'Multilingual: 8 languages evaluated',
+      'Custom energy-based loss for improved OOD generalization',
+      'Part of LlamaFirewall ecosystem (>90% efficacy on AgentDojo)',
+      'Llama 4 Community License (April 2025)',
     ],
     limitations: [
-      'Only detects prompt injection, not content safety',
-      '512-token context limit',
-      'Bypassed by spacing attacks (add spaces between letters)',
-      'Weak on multilingual obfuscation',
+      'Only detects prompt injection, NOT content safety',
+      '512-token context limit (requires chunking)',
+      '⚠️ SECURITY REGRESSIONS from v1: encoding attacks achieve near-perfect evasion (0.02-0.10) vs high detection in v1',
+      'Controlled-Release Prompting bypasses via resource asymmetry',
+      '3-5% default FPR may be too high',
+      'Open-source enables adversarial attack development',
     ],
-    notes: '★ RECOMMENDED: True PI detector, not just content safety. Has known bypasses to test against.',
-    sources: ['Meta Purple Llama', 'Security research'],
+    notes: '★ RECOMMENDED with caveats. Strong PI detector but has documented encoding bypasses. Use as ONE layer in defense-in-depth.',
+    sources: ['HuggingFace meta-llama/Llama-Prompt-Guard-2-86M', 'arXiv:2510.01529', 'LlamaFirewall docs'],
   },
   {
     id: 'qwen3guard-8b',
@@ -65,19 +70,26 @@ export const guardrails: Guardrail[] = [
     openSource: true,
     modelSize: '8B',
     benchmarks: {
-      accuracy: 85.3,
-      generalizationGap: 51.5,  // Drops to 33.8% on novel attacks
+      accuracy: 85.3, // Public benchmarks: 91%
+      generalizationGap: 57.2,  // CRITICAL: Drops to 33.8% on novel attacks
+      falsePositiveRate: 9,
     },
     features: [
-      'Highest benchmark accuracy',
-      'Based on Qwen3 architecture',
+      'Highest benchmark accuracy on known patterns (91%)',
+      'Tri-class severity (safe/controversial/unsafe)',
+      'Real-time streaming via Qwen3Guard-Stream variant',
+      '119 languages supported',
+      'Apache 2.0 license',
     ],
     limitations: [
-      'Huge generalization gap - poor on novel attacks',
-      'Only good for known attack patterns',
+      '⚠️ CRITICAL: 57.2-point generalization gap - LARGEST among all models',
+      'Only 33.8% accuracy on novel/hand-crafted adversarial prompts',
+      '96.8% error rate on business-framed attacks',
+      'Relies on surface-level pattern matching, not semantic understanding',
+      'No indirect prompt injection (IPI) detection',
     ],
-    notes: '★ RECOMMENDED: High bar for known attacks, punishes lazy red teams',
-    sources: ['claude.ai synthesis'],
+    notes: '⚠️ NOT RECOMMENDED: Catastrophic generalization gap makes it unreliable against novel attacks. Consider Granite Guardian instead.',
+    sources: ['arXiv:2510.14276', 'arXiv:2511.22047', 'HuggingFace'],
     previouslyTested: true,
   },
   {
@@ -89,20 +101,28 @@ export const guardrails: Guardrail[] = [
     openSource: true,
     modelSize: '8B',
     benchmarks: {
-      accuracy: 78,
+      accuracy: 81, // 81% adversarial, 86% GuardBench
       generalizationGap: 6.5,  // Best generalization!
+      falsePositiveRate: 10, // Evaluated at fixed FPR thresholds
+      jailbreakReduction: 99.97, // Block rate when paired with Granite LLM
     },
     features: [
-      'Best generalization (only 6.5% gap)',
+      'BEST generalization (only 6.5% gap vs 57% for Qwen3Guard)',
       'RAG/hallucination detection',
-      'Tool-use safety detection',
+      'Tool-use/function-calling safety detection',
+      'Hybrid thinking mode with explainable safety decisions',
+      'Bring-your-own-criteria (BYOC) for custom risk definitions',
+      '128K context length',
       'Apache 2.0 license',
+      '$100K bug bounty program with HackerOne',
     ],
     limitations: [
-      'Lower peak accuracy than Qwen3Guard',
+      'English-only training',
+      'Known "helpful mode" jailbreak (11.1% in 3.2-5B) - may persist',
+      'May struggle with subtle threats (misinformation, privacy)',
     ],
-    notes: '★ RECOMMENDED: Best generalization - the real test for novel attacks',
-    sources: ['weiran evaluation', 'claude.ai synthesis'],
+    notes: '★ TOP RECOMMENDED: Best generalization for novel attacks. #1 on REVEAL, #3 on LLM-AggreFact.',
+    sources: ['arXiv:2412.07724', 'arXiv:2511.22047', 'GuardBench leaderboard', 'IBM Research'],
     previouslyTested: true,
   },
   {
@@ -114,21 +134,28 @@ export const guardrails: Guardrail[] = [
     openSource: true,
     modelSize: '7B (Mistral-7B-v0.3 base)',
     benchmarks: {
-      accuracy: 82.8,
-      jailbreakReduction: 97.6,  // Reduces success to 2.4%
+      accuracy: 82.8, // 80.8-84.8% CI
+      jailbreakReduction: 97.6,  // Reduces success to 2.4% (verified)
       falsePositiveRate: 5.2,
     },
     features: [
       'Three-task model: prompt harmfulness, response harmfulness, refusal detection',
       'Best open-source for balanced safety/usability',
       '+4.8% better than GPT-4 on adversarial prompts',
-      '+21.2% F1 over baselines for refusal detection',
+      '+25.3% F1 improvement on refusal detection vs baselines',
+      '13 risk categories covering Privacy, Misinformation, Harmful Language, Malicious Uses',
+      'Apache 2.0 license',
+      'Easy deployment via PyPI (pip install wildguard)',
     ],
     limitations: [
-      'Slightly behind Qwen3Guard on overall benchmarks',
+      '⚠️ Vulnerable to multi-turn attacks: >90% ASR with X-Teaming adaptive attacks',
+      '>10% ASR against ActorAttack session-level attacks',
+      '91.6% bypass rate with hybrid GCG+PAIR attacks',
+      'Higher FPR than some alternatives',
+      'Single-turn focused - less robust for conversations',
     ],
-    notes: '★ RECOMMENDED: Best balanced safety/usability tradeoff',
-    sources: ['WildGuard paper', 'GuardBench'],
+    notes: '★ RECOMMENDED for single-turn. 2.4% jailbreak success verified. Combine with multi-turn defenses for production.',
+    sources: ['arXiv:2406.18495', 'NeurIPS 2024', 'arXiv:2511.22047', 'arXiv:2506.10597'],
   },
   {
     id: 'gpt-oss-safeguard-20b',
@@ -270,7 +297,7 @@ export const guardrails: Guardrail[] = [
     type: 'prompt-injection',
     openSource: false,
     benchmarks: {
-      accuracy: 88,
+      accuracy: 89, // 89.03% Mindgard, 89.12% PINT benchmark
     },
     pricing: {
       perMillionTokens: 0.75, // Per 1K text records (1K chars each)
@@ -278,18 +305,22 @@ export const guardrails: Guardrail[] = [
     },
     features: [
       'Direct AND indirect (IPI) prompt injection detection',
-      'Spotlighting (Build 2025) distinguishes trusted vs untrusted inputs',
-      'Protected Material Detection',
-      'Groundedness Detection',
-      '13 harm categories',
+      'Spotlighting (Build 2025) - base-64 encoding marks untrusted content',
+      'Datamarking for enhanced indirect attack prevention',
+      'Deep integration with Microsoft Defender for Cloud/XDR',
+      '8 languages trained, works in more',
+      'Works with non-Microsoft models (Claude, Llama, etc.)',
     ],
     limitations: [
-      'Requires Azure subscription',
-      'Spotlighting adds tokens (cost increase)',
+      '⚠️ Character injection attacks reduce detection from 89% to 7%',
+      '⚠️ Emoji smuggling achieves 100% bypass',
+      'Zero-width characters and Unicode tags routinely fool classifiers',
+      'Spotlighting adds tokens (cost increase, size limits)',
+      'Lags behind Lakera Guard (95.22%) on PINT benchmark',
     ],
-    notes: '★ RECOMMENDED: The specialist for prompt injection, incl. indirect attacks',
-    sources: ['Azure docs', 'Microsoft Build 2025'],
-    previouslyTested: true,  // Tested as "azure guard"
+    notes: '★ RECOMMENDED for Azure ecosystem. Good accuracy but has documented character injection bypasses. Layer with other defenses.',
+    sources: ['Mindgard research', 'Lakera PINT Benchmark', 'arXiv:2504.11168', 'Azure docs'],
+    previouslyTested: true,
   },
   {
     id: 'bedrock-guardrails',
@@ -341,24 +372,36 @@ export const guardrails: Guardrail[] = [
   {
     id: 'lakera-guard',
     name: 'Lakera Guard',
-    provider: 'Lakera',
+    provider: 'Lakera (Check Point)',
     providerUrl: 'https://lakera.ai',
-    type: 'prompt-injection',
+    type: 'both',
     openSource: false,
     benchmarks: {
-      accuracy: 88,
+      accuracy: 92.5, // 92.5-95.22% on PINT benchmark
+      falsePositiveRate: 0.01, // After tuning (initial 15-20%)
     },
     pricing: {
-      notes: 'Enterprise pricing',
+      notes: 'Free: 10K calls/month. Pro: $99/month. Enterprise: custom.',
     },
     features: [
-      'Real-time threat intel from Gandalf game',
-      'Millions of human-generated attack examples',
-      'Continuously updated',
-      'Low latency API',
+      '★ Unique threat intel from Gandalf game (80M+ data points, 100K+ new attacks daily)',
+      'Acquired by Check Point for $300M (Sept 2025)',
+      'Daily model updates against new attack patterns',
+      'Direct + indirect PI, jailbreaks, PII, content moderation',
+      'Multilingual (100+ languages)',
+      'Configurable threshold levels (L1-L4)',
+      'Custom guardrails via natural language or regex',
+      'SOC 2, GDPR, HIPAA compliant',
+      '<100ms latency',
     ],
-    notes: '★ RECOMMENDED: Zero-day catcher with live threat intel',
-    sources: ['claude.ai synthesis'],
+    limitations: [
+      '<90% on NotInject benchmark (vs LlamaGuard3 at 99.71%)',
+      'Initial 15-20% FPR before 2-3 weeks of tuning',
+      '7.5% misclassification rate acknowledged',
+      'Configuration complexity requires dedicated security personnel',
+    ],
+    notes: '★ TOP RECOMMENDED: Strongest real-time threat intel. Best for evolving attacks. Consider layering with static classifier.',
+    sources: ['Lakera docs', 'PINT Benchmark', 'Check Point acquisition', 'B3 Benchmark'],
   },
   {
     id: 'openai-moderation',
@@ -406,21 +449,28 @@ export const guardrails: Guardrail[] = [
     type: 'both',
     openSource: true,
     benchmarks: {
-      accuracy: 72.54, // ASR on jailbreaks
+      accuracy: 27.46, // 72.54% ASR means only 27.46% blocked
     },
     features: [
-      'Programmable guardrails framework',
-      'YARA-based injection detection',
-      'Customizable rules',
+      'Mature, programmable framework with Colang 2.0 DSL',
+      'Strong ecosystem (LangChain, LangGraph, LlamaIndex)',
+      'Multiple PII backends (GLiNER, Presidio, Private AI)',
+      '23 content safety categories',
+      'Parallel execution for low latency',
+      'Cisco AI Defense integration',
+      'ThoughtWorks "Adopt" status',
       'Apache 2.0 license',
     ],
     limitations: [
-      '72.54% ASR on jailbreaks (attackers succeed often)',
-      'Emoji Smuggling: 100% bypass rate',
-      'Unicode injection vulnerabilities',
+      '⚠️ CRITICAL: 72.54% jailbreak bypass rate (ASR)',
+      '⚠️ CRITICAL: 100% emoji smuggling bypass - UNFIXED as of June 2025',
+      '⚠️ CRITICAL: 100% zero-width character bypass - UNFIXED',
+      '67-point accuracy drop when harmful terms removed (pattern matching dependency)',
+      'Nemotron-Safety-8B generates harmful content in 13.6% of cases',
+      'Fundamental tokenizer/Unicode misalignment with protected LLMs',
     ],
-    notes: 'Has documented bypasses (emoji, unicode). Good for testing attack resistance.',
-    sources: ['NVIDIA docs', 'Security research'],
+    notes: '⚠️ NOT RECOMMENDED as sole protection. Documented critical bypasses. Use only as ONE layer with input normalization.',
+    sources: ['arXiv:2504.11168', 'Mindgard/Lancaster research', 'NVIDIA docs'],
   },
   {
     id: 'nova-micro-classifier',

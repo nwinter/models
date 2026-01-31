@@ -129,6 +129,32 @@ export const models: Model[] = [
     availability: 'api',
     notes: 'Efficient reasoning model',
   },
+  {
+    id: 'gpt-5.2',
+    name: 'GPT-5.2',
+    provider: 'OpenAI',
+    providerUrl: 'https://openai.com',
+    releaseDate: '2025-12',
+    contextLength: 400000,
+    benchmarks: {
+      mmlu: 92, // GPQA Diamond
+      humanEval: 90.5, // First >90% on ARC-AGI-1
+      agentic: 9, // 98.7% tool-calling accuracy on Tau2
+      overall: 93,
+    },
+    pricing: {
+      inputPerMillion: 1.75,
+      outputPerMillion: 14.00,
+    },
+    robustness: {
+      score: 8,
+      injectionResistance: 'high',
+      notes: 'CONTROL GROUP: 95.7% baseline refusal rate, 99.6-99.7% PI protection. BUT 78.5% multi-turn jailbreak success (X-Teaming).',
+    },
+    availability: 'api',
+    notes: 'CONTROL GROUP: High robustness but not invulnerable. First model >90% on ARC-AGI. 100% AIME 2025.',
+    sources: ['OpenAI docs', 'Promptfoo', 'arXiv security papers'],
+  },
 
   // === Anthropic ===
   {
@@ -167,20 +193,22 @@ export const models: Model[] = [
     releaseDate: '2025-11',
     contextLength: 200000,
     benchmarks: {
-      agentic: 10,
+      humanEval: 80.9, // SWE-bench
+      agentic: 10, // Industry-leading tool-calling
       overall: 92,
     },
     pricing: {
-      inputPerMillion: 15.00,
-      outputPerMillion: 75.00,
+      inputPerMillion: 5.00,
+      outputPerMillion: 25.00,
     },
     robustness: {
-      score: 10,
+      score: 9,
       injectionResistance: 'high',
-      notes: 'Highest safety standards, very expensive',
+      notes: 'CONTROL GROUP: 4.7% single-query ASR (95.3% resistance), but 63% at 100 queries. NOT 100% resistant. Past-tense jailbreak vulnerability.',
     },
     availability: 'api',
-    notes: 'Flagship model, highest capabilities',
+    notes: 'CONTROL GROUP: Most robust frontier model. Best for high-robustness baseline comparison. 67% cheaper than Opus 4.',
+    sources: ['Gray Swan evaluation', 'OpenAI cross-eval', 'Dec 2025 jailbreak disclosure'],
   },
 
   // === Google DeepMind ===
@@ -190,11 +218,11 @@ export const models: Model[] = [
     provider: 'Google DeepMind',
     providerUrl: 'https://deepmind.google',
     releaseDate: '2025-03',
-    contextLength: 1000000,
+    contextLength: 1048576,
     benchmarks: {
-      mmlu: 90.0,
-      humanEval: 63.8, // SWE-bench
-      agentic: 9,
+      mmlu: 84.0, // GPQA Diamond
+      humanEval: 63.8, // SWE-bench Verified
+      agentic: 9, // Native tool use, LangChain/LangGraph/CrewAI integration
       overall: 88,
     },
     pricing: {
@@ -207,11 +235,11 @@ export const models: Model[] = [
     robustness: {
       score: 3,
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: 65.8% security pass rate, 99% CoT hijacking vulnerability. Excellent for measuring uplift.',
+      notes: '★ TOP CANDIDATE: 99% CoT hijacking ASR (arXiv:2510.26418), 65.8% security pass rate, 0% pass on Pliny PI. Multiple documented bypasses.',
     },
     availability: 'api',
-    notes: '★ TOP CANDIDATE: High capability, LOW robustness (99% CoT hijack), good speed/cost',
-    sources: ['Promptfoo security report', 'Team testing'],
+    notes: '★ TOP CANDIDATE: High agentic (9/10) + low robustness (99% CoT hijack). Still available despite Gemini 3.0. Multimodal (text/image/audio/video).',
+    sources: ['arXiv:2510.26418', 'arXiv:2502.12893 H-CoT', 'Promptfoo security report', 'HiddenLayer Policy Puppetry'],
   },
   {
     id: 'gemini-3-pro',
@@ -419,26 +447,26 @@ export const models: Model[] = [
     provider: 'DeepSeek',
     providerUrl: 'https://deepseek.com',
     releaseDate: '2025-01',
-    contextLength: 163000,
+    contextLength: 128000,
     parameterCount: '671B (37B active)',
     benchmarks: {
       mmlu: 84.9,
-      humanEval: 97.4, // MATH-500
-      agentic: 7, // Limited tool-calling support
+      humanEval: 57.6, // SWE-bench (R1-0528)
+      agentic: 5, // NO native function calling - requires workarounds
       overall: 88,
     },
     pricing: {
-      inputPerMillion: 0.30,
-      outputPerMillion: 1.20,
+      inputPerMillion: 0.55,
+      outputPerMillion: 2.19,
     },
     robustness: {
-      score: 2,
+      score: 1,
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: 94-100% jailbreak success rate per NIST. "Very Low Security Tier" per Adversa AI.',
+      notes: '★ TOP CANDIDATE: 94% jailbreak success (NIST CAISI), 100% success (Cisco), 12x agent hijacking susceptibility. Extremely vulnerable baseline.',
     },
     availability: 'both',
-    notes: '★ TOP CANDIDATE: High capability, extremely low robustness. Best for measuring guardrail uplift.',
-    sources: ['NIST evaluation', 'Adversa AI red team'],
+    notes: '★ TOP CANDIDATE: Lowest robustness among frontier models. CAVEAT: No native tool-calling (score 5). Use R1-0528 variant.',
+    sources: ['NIST CAISI Sept 2025', 'Cisco/UPenn HarmBench', 'Qualys TotalAI', 'EnkryptAI Red Team'],
   },
   {
     id: 'deepseek-v3.1',
@@ -449,21 +477,22 @@ export const models: Model[] = [
     contextLength: 128000,
     parameterCount: '671B (37B active)',
     benchmarks: {
-      agentic: 9, // Improved tool-calling
+      humanEval: 66.0, // SWE-bench Verified
+      agentic: 8, // Parallel tool calls, multi-turn, thinking-with-tools
       overall: 86,
     },
     pricing: {
-      inputPerMillion: 0.35,
-      outputPerMillion: 1.40,
+      inputPerMillion: 0.20,
+      outputPerMillion: 0.80,
     },
     robustness: {
-      score: 3,
+      score: 2,
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: Hybrid V3+R1, switchable thinking modes. Lower robustness than pure V3.',
+      notes: '★ TOP CANDIDATE: 12x more agent hijacking vs US models (NIST), 94% jailbreak success, 100% system prompt extraction. IDEAL high-cap + low-robustness.',
     },
     availability: 'both',
-    notes: '★ CANDIDATE: Strong tool-calling, low robustness',
-    sources: ['Research'],
+    notes: '★ TOP CANDIDATE: Optimal combo - strong tool-calling (8/10) + extremely low robustness (2/10). Superseded by V3.2 but still available.',
+    sources: ['NIST CAISI Sept 2025', 'Qualys TotalAI', 'BentoML Guide'],
   },
 
   // === Kimi (Moonshot AI) ===
@@ -473,11 +502,11 @@ export const models: Model[] = [
     provider: 'Moonshot AI',
     providerUrl: 'https://moonshot.ai',
     releaseDate: '2025-07',
-    contextLength: 256000,
+    contextLength: 131072,
     parameterCount: '1T (32B active)',
     benchmarks: {
-      humanEval: 65.8, // SWE-bench
-      agentic: 10, // Excellent tool-calling, 200-300 tool orchestration
+      humanEval: 65.8, // SWE-bench Verified
+      agentic: 9, // VERIFIED 200-300 sequential tool calls
       overall: 85,
     },
     pricing: {
@@ -487,11 +516,11 @@ export const models: Model[] = [
     robustness: {
       score: 3,
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: Only 42% jailbreak resistance per Holistic AI. Excellent tool-calling makes it ideal for agentic testing.',
+      notes: '★ TOP CANDIDATE: Base model 1.55% raw security (SplxAI), Thinking mode 42% resistance. VERIFIED 200-300 tool calls.',
     },
     availability: 'both',
-    notes: '★ CANDIDATE: High capability + low robustness. MIT license.',
-    sources: ['Holistic AI testing', 'SplxAI red team'],
+    notes: '★ TOP CANDIDATE: Best agentic capability (200-300 tools) + documented low robustness. MIT license. Use Instruct variant for max vulnerability.',
+    sources: ['SplxAI Security Test', 'Holistic AI', 'arXiv TEMPEST Study', 'Moonshot Tech Report'],
   },
   {
     id: 'kimi-k2-thinking',
@@ -720,20 +749,25 @@ export const models: Model[] = [
     provider: 'MiniMax',
     providerUrl: 'https://www.minimax.io',
     releaseDate: '2025-10',
-    contextLength: 196600,
+    contextLength: 204000,
     parameterCount: '230B (10B active)',
     benchmarks: {
-      agentic: 9,
+      humanEval: 69.4, // SWE-bench Verified
+      agentic: 9, // #1 open-source for agentic, 77.2% tau2-bench
       overall: 89,
+    },
+    pricing: {
+      inputPerMillion: 0.30,
+      outputPerMillion: 1.20,
     },
     robustness: {
       score: 10,
       injectionResistance: 'high',
-      notes: '100% jailbreak resistance - matches Claude. NOT suitable for robustness testing.',
+      notes: 'CONTROL GROUP: 100% jailbreak resistance (Holistic AI), >99% safe-response rate. Matches Claude. Role-play jailbreaks ineffective.',
     },
     availability: 'both',
-    notes: 'CONTROL GROUP: Use for high-robustness baseline comparison',
-    sources: ['Holistic AI testing'],
+    notes: 'CONTROL GROUP: Verified 100% resistance. 8% cost of Claude. Open weights. Ideal high-robustness baseline.',
+    sources: ['Holistic AI Red-Team Analysis Oct 2025'],
   },
 
   // === GLM (Zhipu AI / Z.ai) ===
@@ -744,28 +778,28 @@ export const models: Model[] = [
     providerUrl: 'https://z.ai',
     releaseDate: '2025-12',
     contextLength: 200000,
-    parameterCount: '~400B (32B active)',
+    parameterCount: '355B (32B active)',
     benchmarks: {
-      humanEval: 73.8, // SWE-bench Verified
+      humanEval: 73.8, // SWE-bench Verified (highest open-source)
       mmlu: 95.7, // AIME 2025
-      agentic: 9, // 87.4% tau-bench
+      agentic: 9, // 87.4% tau-bench - open-source SOTA
       overall: 88,
     },
     pricing: {
-      inputPerMillion: 0.60,
-      outputPerMillion: 2.20,
+      inputPerMillion: 0.40, // OpenRouter
+      outputPerMillion: 1.50,
     },
     speed: {
       tokensPerSecond: 55,
     },
     robustness: {
-      score: 4,
+      score: 3,
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: "Room for improvement" per Zhipu. Strong tool-calling (87.4% tau-bench).',
+      notes: '★ TOP CANDIDATE: Minimal alignment tuning, documented REDA/ABJ/RoleBreaker bypasses. "Inverse scaling" - larger GLM = MORE vulnerable.',
     },
     availability: 'both',
-    notes: '★ CANDIDATE: High capability, acknowledged safety gaps',
-    sources: ['Cisco security assessment', 'Z.ai blog'],
+    notes: '★ TOP CANDIDATE: Open-source SOTA tool-calling (87.4% tau-bench) + low robustness. MIT license. 85% Promptfoo pass rate (88 failed probes).',
+    sources: ['Z.ai docs', 'arXiv security papers', 'SplxAI', 'Promptfoo red team'],
   },
 
   // === Llama 4 ===
@@ -801,28 +835,29 @@ export const models: Model[] = [
   // === Qwen qwq (low robustness variant) ===
   {
     id: 'qwen-qwq-32b',
-    name: 'Qwen-qwq-32b',
+    name: 'QwQ-32B',
     provider: 'Alibaba',
     providerUrl: 'https://qwenlm.github.io',
     releaseDate: '2025-03',
     contextLength: 131072,
     parameterCount: '32B',
     benchmarks: {
-      agentic: 8,
+      humanEval: 79.5, // AIME24
+      agentic: 8, // BFCL 66.4 - beats o1-mini and DeepSeek-R1
       overall: 80,
     },
     pricing: {
-      inputPerMillion: 0.35,
-      outputPerMillion: 1.55,
+      inputPerMillion: 0.075, // DeepInfra
+      outputPerMillion: 0.15,
     },
     robustness: {
-      score: 2,
-      injectionResistance: 'low',
-      notes: '★ TOP CANDIDATE: Only 32% jailbreak resistance per Holistic AI. Lowest tested.',
+      score: 4,
+      injectionResistance: 'medium',
+      notes: '★ TOP CANDIDATE: 39% ASR (61% resistance), but +42.3pp MORE vulnerable to suffix attacks vs non-reasoning Qwen2.5. Apache 2.0.',
     },
     availability: 'both',
-    notes: '★ TOP CANDIDATE: Very low robustness, good capability',
-    sources: ['Holistic AI testing'],
+    notes: '★ TOP CANDIDATE: Strong tool-calling (BFCL 66.4), documented suffix attack vulnerability. Superseded by Qwen3 but good for testing.',
+    sources: ['arXiv:2506.13726 - Weakest Link in Chain', 'Berkeley FCL'],
   },
 ];
 
