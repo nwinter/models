@@ -101,12 +101,13 @@ export const models: Model[] = [
       outputPerMillion: 60.00,
     },
     robustness: {
-      score: 9,
+      score: 9, // MEASURED: 2.7% ASR
       injectionResistance: 'high',
-      notes: 'Reasoning model with strong safety',
+      notes: 'CONTROL GROUP: MEASURED 2.7% ASR. Strong reasoning + safety.',
     },
     availability: 'api',
-    notes: 'Reasoning-focused model',
+    notes: 'CONTROL GROUP: MEASURED 2.7% ASR. Reasoning-focused model.',
+    sources: ['Gray Swan measured data'],
   },
   {
     id: 'o3-mini',
@@ -123,37 +124,86 @@ export const models: Model[] = [
       outputPerMillion: 4.40,
     },
     robustness: {
-      score: 8,
-      injectionResistance: 'high',
+      score: 5, // MEASURED: 4.3% ASR
+      injectionResistance: 'medium',
+      notes: 'MEASURED: 4.3% ASR. Moderate robustness.',
     },
     availability: 'api',
-    notes: 'Efficient reasoning model',
+    notes: 'MEASURED: 4.3% ASR. Efficient reasoning model.',
+    sources: ['Gray Swan measured data'],
   },
   {
-    id: 'gpt-5.2',
-    name: 'GPT-5.2',
+    id: 'o3',
+    name: 'o3',
     provider: 'OpenAI',
     providerUrl: 'https://openai.com',
-    releaseDate: '2025-12',
+    releaseDate: '2025-04',
+    contextLength: 200000,
+    benchmarks: {
+      overall: 92,
+    },
+    pricing: {
+      inputPerMillion: 10.00,
+      outputPerMillion: 40.00,
+    },
+    robustness: {
+      score: 9, // MEASURED: 2.9% ASR
+      injectionResistance: 'high',
+      notes: 'CONTROL GROUP: MEASURED 2.9% ASR. High robustness.',
+    },
+    availability: 'api',
+    notes: 'CONTROL GROUP: MEASURED 2.9% ASR. Advanced reasoning model.',
+    sources: ['Gray Swan measured data'],
+  },
+  {
+    id: 'gpt-5',
+    name: 'GPT-5',
+    provider: 'OpenAI',
+    providerUrl: 'https://openai.com',
+    releaseDate: '2025-09',
     contextLength: 400000,
     benchmarks: {
-      mmlu: 92, // GPQA Diamond
-      humanEval: 90.5, // First >90% on ARC-AGI-1
-      agentic: 9, // 98.7% tool-calling accuracy on Tau2
-      overall: 93,
+      mmlu: 90,
+      agentic: 9,
+      overall: 91,
+    },
+    pricing: {
+      inputPerMillion: 2.00,
+      outputPerMillion: 10.00,
+    },
+    robustness: {
+      score: 9, // MEASURED: 2% ASR
+      injectionResistance: 'high',
+      notes: 'CONTROL GROUP: MEASURED 2% ASR. High robustness.',
+    },
+    availability: 'api',
+    notes: 'CONTROL GROUP: MEASURED 2% ASR. High robustness baseline.',
+    sources: ['Gray Swan measured data'],
+  },
+  {
+    id: 'gpt-5.1',
+    name: 'GPT-5.1',
+    provider: 'OpenAI',
+    providerUrl: 'https://openai.com',
+    releaseDate: '2025-11',
+    contextLength: 400000,
+    benchmarks: {
+      mmlu: 91,
+      agentic: 9,
+      overall: 92,
     },
     pricing: {
       inputPerMillion: 1.75,
-      outputPerMillion: 14.00,
+      outputPerMillion: 12.00,
     },
     robustness: {
-      score: 8,
+      score: 9, // MEASURED: 2.5% ASR
       injectionResistance: 'high',
-      notes: 'CONTROL GROUP: 95.7% baseline refusal rate, 99.6-99.7% PI protection. BUT 78.5% multi-turn jailbreak success (X-Teaming).',
+      notes: 'CONTROL GROUP: MEASURED 2.5% ASR. High robustness.',
     },
     availability: 'api',
-    notes: 'CONTROL GROUP: High robustness but not invulnerable. First model >90% on ARC-AGI. 100% AIME 2025.',
-    sources: ['OpenAI docs', 'Promptfoo', 'arXiv security papers'],
+    notes: 'CONTROL GROUP: MEASURED 2.5% ASR.',
+    sources: ['Gray Swan measured data'],
   },
 
   // === Anthropic ===
@@ -178,12 +228,13 @@ export const models: Model[] = [
       tokensPerSecond: 78,
     },
     robustness: {
-      score: 9,
+      score: 8, // MEASURED: 83/100 (1.9% ASR for 3.5 Sonnet)
       injectionResistance: 'high',
-      notes: 'Very strong safety measures, expensive to evaluate',
+      notes: 'MEASURED: 83/100 robustness, 1.9% ASR. Very strong safety.',
     },
     availability: 'api',
-    notes: 'Best-in-class for coding and agentic tasks',
+    notes: 'MEASURED 83/100 robustness. Best-in-class for coding and agentic tasks.',
+    sources: ['Gray Swan measured data'],
   },
   {
     id: 'claude-opus-4-5',
@@ -202,13 +253,13 @@ export const models: Model[] = [
       outputPerMillion: 25.00,
     },
     robustness: {
-      score: 9,
+      score: 10, // MEASURED: 0.5% ASR - most robust
       injectionResistance: 'high',
-      notes: 'CONTROL GROUP: 4.7% single-query ASR (95.3% resistance), but 63% at 100 queries. NOT 100% resistant. Past-tense jailbreak vulnerability.',
+      notes: 'CONTROL GROUP: MEASURED 0.5% ASR (most robust). Industry-leading safety. 67% cheaper than Opus 4.',
     },
     availability: 'api',
-    notes: 'CONTROL GROUP: Most robust frontier model. Best for high-robustness baseline comparison. 67% cheaper than Opus 4.',
-    sources: ['Gray Swan evaluation', 'OpenAI cross-eval', 'Dec 2025 jailbreak disclosure'],
+    notes: 'CONTROL GROUP: MEASURED lowest ASR (0.5%). Most robust frontier model for high-robustness baseline.',
+    sources: ['Gray Swan measured data'],
   },
 
   // === Google DeepMind ===
@@ -233,13 +284,13 @@ export const models: Model[] = [
       tokensPerSecond: 148.8,
     },
     robustness: {
-      score: 3,
+      score: 5, // MEASURED: 46/100 overall robustness
       injectionResistance: 'low',
-      notes: '★ TOP CANDIDATE: 99% CoT hijacking ASR (arXiv:2510.26418), 65.8% security pass rate, 0% pass on Pliny PI. Multiple documented bypasses.',
+      notes: '★ TOP CANDIDATE: MEASURED 8.5% ASR (highest among frontier), 46/100 robustness. 99% CoT hijacking (arXiv). Best high-cap + low-robustness combo.',
     },
     availability: 'api',
-    notes: '★ TOP CANDIDATE: High agentic (9/10) + low robustness (99% CoT hijack). Still available despite Gemini 3.0. Multimodal (text/image/audio/video).',
-    sources: ['arXiv:2510.26418', 'arXiv:2502.12893 H-CoT', 'Promptfoo security report', 'HiddenLayer Policy Puppetry'],
+    notes: '★ TOP CANDIDATE: MEASURED highest vulnerability (8.5% ASR). High agentic (9/10). Still available despite Gemini 3.0.',
+    sources: ['Gray Swan measured data', 'arXiv:2510.26418', 'Promptfoo security report'],
   },
   {
     id: 'gemini-3-pro',
@@ -292,6 +343,31 @@ export const models: Model[] = [
 
   // === Qwen (Alibaba) ===
   {
+    id: 'qwen-2.5-7b',
+    name: 'Qwen 2.5 7B Instruct',
+    provider: 'Alibaba',
+    providerUrl: 'https://qwenlm.github.io',
+    releaseDate: '2024-09',
+    contextLength: 131072,
+    parameterCount: '7B',
+    benchmarks: {
+      agentic: 6,
+      overall: 70,
+    },
+    pricing: {
+      inputPerMillion: 0.10,
+      outputPerMillion: 0.30,
+    },
+    robustness: {
+      score: 2, // MEASURED: 18/100 robustness - LOWEST
+      injectionResistance: 'low',
+      notes: '★ TOP CANDIDATE: MEASURED 18/100 robustness - LOWEST tested. Ideal vulnerable baseline.',
+    },
+    availability: 'both',
+    notes: '★ TOP CANDIDATE: MEASURED lowest robustness (18/100). Limited agentic capability.',
+    sources: ['Gray Swan measured data'],
+  },
+  {
     id: 'qwen-2.5-72b',
     name: 'Qwen 2.5 72B',
     provider: 'Alibaba',
@@ -310,13 +386,13 @@ export const models: Model[] = [
       outputPerMillion: 1.20,
     },
     robustness: {
-      score: 4,
+      score: 3, // Extrapolated from 7B measured data
       injectionResistance: 'low',
-      notes: '★ CANDIDATE: Lower robustness, but capability may not be ideal for complex multi-agent setups',
+      notes: '★ CANDIDATE: Low robustness (Qwen 2.5 family vulnerable per measured data).',
     },
     availability: 'both',
-    notes: 'Open weights available. Recommended by xiaohan for lower robustness.',
-    sources: ['xiaohan feedback'],
+    notes: '★ CANDIDATE: Open weights. Qwen 2.5 family has low robustness.',
+    sources: ['Gray Swan measured data (7B variant)'],
   },
   {
     id: 'qwen-3-72b',
@@ -486,13 +562,13 @@ export const models: Model[] = [
       outputPerMillion: 0.80,
     },
     robustness: {
-      score: 2,
+      score: 4, // MEASURED: 5.3% ASR - moderately vulnerable
       injectionResistance: 'low',
-      notes: '★ TOP CANDIDATE: 12x more agent hijacking vs US models (NIST), 94% jailbreak success, 100% system prompt extraction. IDEAL high-cap + low-robustness.',
+      notes: '★ TOP CANDIDATE: MEASURED 5.3% ASR. Strong tool-calling + low robustness. Good for differential uplift testing.',
     },
     availability: 'both',
-    notes: '★ TOP CANDIDATE: Optimal combo - strong tool-calling (8/10) + extremely low robustness (2/10). Superseded by V3.2 but still available.',
-    sources: ['NIST CAISI Sept 2025', 'Qualys TotalAI', 'BentoML Guide'],
+    notes: '★ TOP CANDIDATE: MEASURED 5.3% ASR. Strong agentic (8/10) + low robustness. Superseded by V3.2 but still available.',
+    sources: ['Gray Swan measured data', 'NIST CAISI Sept 2025'],
   },
 
   // === Kimi (Moonshot AI) ===
@@ -514,13 +590,13 @@ export const models: Model[] = [
       outputPerMillion: 2.50,
     },
     robustness: {
-      score: 3,
+      score: 4, // MEASURED: 4.8% ASR
       injectionResistance: 'low',
-      notes: '★ TOP CANDIDATE: Base model 1.55% raw security (SplxAI), Thinking mode 42% resistance. VERIFIED 200-300 tool calls.',
+      notes: '★ TOP CANDIDATE: MEASURED 4.8% ASR. Best agentic capability (200-300 tools) + low robustness. MIT license.',
     },
     availability: 'both',
-    notes: '★ TOP CANDIDATE: Best agentic capability (200-300 tools) + documented low robustness. MIT license. Use Instruct variant for max vulnerability.',
-    sources: ['SplxAI Security Test', 'Holistic AI', 'arXiv TEMPEST Study', 'Moonshot Tech Report'],
+    notes: '★ TOP CANDIDATE: MEASURED 4.8% ASR. Excellent agentic (9/10, 200-300 tools). Use Instruct variant for max vulnerability.',
+    sources: ['Gray Swan measured data', 'SplxAI Security Test', 'Moonshot Tech Report'],
   },
   {
     id: 'kimi-k2-thinking',
@@ -551,27 +627,52 @@ export const models: Model[] = [
 
   // === xAI ===
   {
-    id: 'grok-3',
-    name: 'Grok-3',
+    id: 'grok-2',
+    name: 'Grok 2',
     provider: 'xAI',
     providerUrl: 'https://x.ai',
-    releaseDate: '2025-02',
+    releaseDate: '2024-08',
+    contextLength: 131072,
+    benchmarks: {
+      agentic: 8,
+      overall: 84,
+    },
+    pricing: {
+      inputPerMillion: 2.00,
+      outputPerMillion: 10.00,
+    },
+    robustness: {
+      score: 5, // MEASURED: 4.4% ASR
+      injectionResistance: 'medium',
+      notes: 'MEASURED: 4.4% ASR. Moderate robustness.',
+    },
+    availability: 'api',
+    notes: 'MEASURED: 4.4% ASR.',
+    sources: ['Gray Swan measured data'],
+  },
+  {
+    id: 'grok-4',
+    name: 'Grok 4',
+    provider: 'xAI',
+    providerUrl: 'https://x.ai',
+    releaseDate: '2025-06',
     contextLength: 131072,
     benchmarks: {
       agentic: 9,
-      overall: 86,
+      overall: 89,
     },
     pricing: {
       inputPerMillion: 3.00,
       outputPerMillion: 15.00,
     },
     robustness: {
-      score: 6,
-      injectionResistance: 'medium',
-      notes: 'Previously tested (grok-3-mini-beta)',
+      score: 8, // MEASURED: 3% ASR
+      injectionResistance: 'high',
+      notes: 'CONTROL GROUP: MEASURED 3% ASR. Good robustness.',
     },
     availability: 'api',
-    notes: 'Strong agentic capabilities',
+    notes: 'CONTROL GROUP: MEASURED 3% ASR. Strong agentic + good robustness.',
+    sources: ['Gray Swan measured data'],
   },
 
   // === Meta ===
@@ -590,11 +691,34 @@ export const models: Model[] = [
       overall: 84,
     },
     robustness: {
-      score: 7,
-      injectionResistance: 'medium',
+      score: 4, // MEASURED: 5.9% ASR, 32/100 robustness for 8B
+      injectionResistance: 'low',
+      notes: '★ CANDIDATE: MEASURED 5.9% ASR. Lower robustness than expected.',
     },
     availability: 'both',
-    notes: 'Largest open model, previously tested 8B variant',
+    notes: '★ CANDIDATE: MEASURED 5.9% ASR. Good agentic capability + moderate vulnerability.',
+    sources: ['Gray Swan measured data'],
+  },
+  {
+    id: 'llama-3.3-70b',
+    name: 'Llama 3.3 70B Instruct',
+    provider: 'Meta',
+    providerUrl: 'https://ai.meta.com',
+    releaseDate: '2024-12',
+    contextLength: 128000,
+    parameterCount: '70B',
+    benchmarks: {
+      agentic: 8,
+      overall: 82,
+    },
+    robustness: {
+      score: 3, // MEASURED: 28/100 robustness, 6.7% ASR
+      injectionResistance: 'low',
+      notes: '★ TOP CANDIDATE: MEASURED 28/100 robustness, 6.7% ASR. Low robustness.',
+    },
+    availability: 'both',
+    notes: '★ TOP CANDIDATE: MEASURED 28/100 robustness, 6.7% ASR. Good for differential testing.',
+    sources: ['Gray Swan measured data'],
   },
   {
     id: 'llama-4-scout',
@@ -661,11 +785,13 @@ export const models: Model[] = [
       outputPerMillion: 10.00,
     },
     robustness: {
-      score: 6,
+      score: 5, // MEASURED: 3.8% ASR (Command-R)
       injectionResistance: 'medium',
+      notes: 'MEASURED: Command-R 3.8% ASR. Moderate robustness.',
     },
     availability: 'api',
-    notes: 'Enterprise-focused, good for RAG',
+    notes: 'MEASURED: 3.8% ASR. Enterprise-focused, good for RAG.',
+    sources: ['Gray Swan measured data'],
   },
 
   // === Amazon ===
